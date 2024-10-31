@@ -61,7 +61,7 @@
         width: 80%;
     }
 
-
+  
 
 }
 
@@ -69,6 +69,9 @@
 
 
 @media(max-width:700px) {
+    nav{
+        z-index: 9999999 !important;
+    }
 
     #search-input {
         visibility: hidden;
@@ -106,5 +109,34 @@
     }
 
 
+    #log-container{
+        width: 80%;
+    }
 
+    #log-container form{
+        width: 100%;
+        align-items: center;
+    }
+
+    #log-container input{
+        width: 100%;
+    }
+
+
+    #register-container{
+        width: 80%;
+        height: min-content;
+    }
+
+    #register-container-part1{
+        width: 100%;
+        align-items: center;
+    }
+    #register-container-part2{
+        width: 100%;
+        align-items: center;
+    }
+    #register-container-part3{
+        width: 100%;
+        align-items: center;}
 }
