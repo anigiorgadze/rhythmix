@@ -1,5 +1,5 @@
 const logoMain = document.getElementsByClassName('logo')
-logoMain[0].addEventListener('click',()=>{
+logoMain[0].addEventListener('click', () => {
   location.reload()
 })
 
@@ -65,14 +65,16 @@ const libraryAside = document.getElementById('your-library-aside')
 
 
 
-function screenzoom(){if (window.matchMedia("(min-width: 2051px)").matches) {
-  libraryAside.style.height = '100vh'}
+function screenzoom() {
+  if (window.matchMedia("(min-width: 2051px)").matches) {
+    libraryAside.style.height = '100vh'
+  }
 }
 screenzoom()
 let iconBoolean = false
 libraryIcon[0].addEventListener('click', () => {
-  
-  
+
+
   iconBoolean = !iconBoolean
   if (window.matchMedia("(max-width: 1300px)").matches) {
     console.log('test')
@@ -95,6 +97,8 @@ let choosenTrack = document.getElementById("choosen-music-div")
 let chooseMusicDiv = document.getElementsByClassName('choosen-music-album-img')[0]
 let chooseMusicArtistText = document.getElementsByClassName('choose-music-name-artist-text')
 let musicsLists = document.getElementById('musics-lists')
+let musicArr = []
+let accKey = document.getElementById("acount-key")
 
 const myFetch = fetch(`https://api.jamendo.com/v3.0/${tracks}/?client_id=fd9b5391&limit=100&order=popularity_total_desc`).then((response) => {
   return response.json();
@@ -108,7 +112,7 @@ const myFetch = fetch(`https://api.jamendo.com/v3.0/${tracks}/?client_id=fd9b539
                 <img class="play-icon" src="./main-icons/play-icon1.png" alt="">
                 <p class="track-name">${data.results[i].name}</p>
                 <p class="artist-name">${data.results[i].artist_name}</p>
-
+                <p class="track-id">${data.results[i].id}</p>
               </div>`
   }
   const posterDivHover = document.getElementsByClassName('poster-div');
@@ -156,7 +160,7 @@ const myFetch = fetch(`https://api.jamendo.com/v3.0/${tracks}/?client_id=fd9b539
 
         wavesurfer.playPause();
 
-        if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+        if (playBtn.src.includes('main-icons/play-icon1.png')) {
           playBtn.src = "./main-icons/pause-icon.png"
           console.log('yes')
         } else {
@@ -186,6 +190,7 @@ const myFetch = fetch(`https://api.jamendo.com/v3.0/${tracks}/?client_id=fd9b539
               <div class="artist-album-name-order-div">
                 <p class="song-name-order">${data.results[x].name}</p>
                 <p class="group-name-order">${data.results[x].artist_name}</p>
+                <p class="track-id">${data.results[x].id}</p>
               </div>
                     
               </div>
@@ -215,7 +220,7 @@ const myFetch = fetch(`https://api.jamendo.com/v3.0/${tracks}/?client_id=fd9b539
               wavesurfer.load(resultUrl[0].audio);
               wavesurfer.playPause();
 
-              if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+              if (playBtn.src.includes('main-icons/play-icon1.png')) {
                 playBtn.src = "./main-icons/pause-icon.png"
                 console.log('yes')
               } else {
@@ -225,22 +230,55 @@ const myFetch = fetch(`https://api.jamendo.com/v3.0/${tracks}/?client_id=fd9b539
 
             })
 
-
+            
             addMusicBtn[a].addEventListener('click', () => {
+              if (buttonOflog[0].innerHTML != 'Log Out') {
+                ContainOflogin.style.display = "flex"
+              } else {
+                console.log(addMusicBtn[a].parentElement.querySelector(".booleancheck").innerHTML)
+                if (addMusicBtn[a].parentElement.querySelector(".booleancheck").innerHTML === "false") {
+                  musicArr.push(`${addMusicBtn[a].parentElement.parentElement.querySelector(".track-id").innerHTML}`)
+                 
+                  addMusicBtn[a].parentElement.querySelector(".booleancheck").innerHTML = "true"
+                  console.log(musicArr)
+                  console.log(accKey)
+                  // let obj = localStorage.getItem(accKey.innerHTML)
+                  let newObj = JSON.parse(localStorage.getItem(accKey.innerHTML))
+                  newObj.arr = musicArr
+                  console.log(newObj)
+                  localStorage.setItem(accKey.innerHTML,JSON.stringify(newObj))
 
-              // console.log( artistDiv[a])
-              console.log(addMusicBtn[a].parentElement.querySelector(".booleancheck").innerHTML)
-              if (addMusicBtn[a].parentElement.querySelector(".booleancheck").innerHTML === "false") {
-                addMusicBtn[a].parentElement.querySelector(".booleancheck").innerHTML = "true"
-                sumOfliked++
-                LikedSongdiv.innerHTML += `<div class="liked-songs-div">
-                <p class="number-of-music">${sumOfliked}</p>
-                <div class="container-of-names">
-                  <p class="name-of-music">${addMusicBtn[a].parentElement.parentElement.querySelector(".song-name-order").innerHTML}</p>
-                  <p class="name-of-artist">${addMusicBtn[a].parentElement.parentElement.querySelector(".group-name-order").innerHTML}</p>
-                </div>
-              </div>`
+                  let finObj = JSON.parse(localStorage.getItem(accKey.innerHTML))
+
+                  console.log(finObj)
+                  LikedSongdiv.innerHTML = ""
+                  for(let b=0; b< finObj.arr.length;b++){
+
+                    const myFetch = fetch(`https://api.jamendo.com/v3.0/${tracks}/?client_id=fd9b5391&limit=100&order=popularity_total_desc`).then((response) => {
+                      return response.json();
+                    }).then((data4) => {
+                      
+                      for (let c = 0; c < 100; c++) {
+                        if(finObj.arr[b] == data4.results[c].id){
+                          
+                          LikedSongdiv.innerHTML += `<div class="liked-songs-div">
+                          <p class="number-of-music">${b+1}</p>
+                          <div class="container-of-names">
+                            <p class="name-of-music">${data.results[c].name}</p>
+                            <p class="name-of-artist">${data.results[c].artist_name}</p>
+                          </div>
+                        </div>`
+
+                        }
+                      }
+                    })
+                    }
+                  
+                 
+                }
               }
+
+
             })
           }
 
@@ -325,7 +363,7 @@ showAllSection1.addEventListener("click", function () {
 
             wavesurfer.playPause();
 
-            if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+            if (playBtn.src.includes('main-icons/play-icon1.png')) {
               playBtn.src = "./main-icons/pause-icon.png"
               console.log('yes')
             } else {
@@ -384,7 +422,7 @@ showAllSection1.addEventListener("click", function () {
                   wavesurfer.load(resultUrl[0].audio);
                   wavesurfer.playPause();
 
-                  if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+                  if (playBtn.src.includes('main-icons/play-icon1.png')) {
                     playBtn.src = "./main-icons/pause-icon.png"
                     console.log('yes')
                   } else {
@@ -484,7 +522,7 @@ showAllSection1.addEventListener("click", function () {
 
             wavesurfer.playPause();
 
-            if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+            if (playBtn.src.includes('main-icons/play-icon1.png')) {
               playBtn.src = "./main-icons/pause-icon.png"
               console.log('yes')
             } else {
@@ -543,7 +581,7 @@ showAllSection1.addEventListener("click", function () {
                   wavesurfer.load(resultUrl[0].audio);
                   wavesurfer.playPause();
 
-                  if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+                  if (playBtn.src.includes('main-icons/play-icon1.png')) {
                     playBtn.src = "./main-icons/pause-icon.png"
                     console.log('yes')
                   } else {
@@ -659,7 +697,7 @@ const myFetch2 = fetch(`https://api.jamendo.com/v3.0/${albums}/?client_id=fd9b53
 
           wavesurfer.playPause();
 
-          if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+          if (playBtn.src.includes('main-icons/play-icon1.png')) {
             playBtn.src = "./main-icons/pause-icon.png"
             console.log('yes')
           } else {
@@ -718,7 +756,7 @@ const myFetch2 = fetch(`https://api.jamendo.com/v3.0/${albums}/?client_id=fd9b53
               wavesurfer.load(resultUrl[0].audio);
               wavesurfer.playPause();
 
-              if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+              if (playBtn.src.includes('main-icons/play-icon1.png')) {
                 playBtn.src = "./main-icons/pause-icon.png"
                 console.log('yes')
               } else {
@@ -839,7 +877,7 @@ showAllSection2.addEventListener("click", function () {
 
               wavesurfer.playPause();
 
-              if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+              if (playBtn.src.includes('main-icons/play-icon1.png')) {
                 playBtn.src = "./main-icons/pause-icon.png"
                 console.log('yes')
               } else {
@@ -898,7 +936,7 @@ showAllSection2.addEventListener("click", function () {
                   wavesurfer.load(resultUrl[0].audio);
                   wavesurfer.playPause();
 
-                  if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+                  if (playBtn.src.includes('main-icons/play-icon1.png')) {
                     playBtn.src = "./main-icons/pause-icon.png"
                     console.log('yes')
                   } else {
@@ -1002,7 +1040,7 @@ showAllSection2.addEventListener("click", function () {
 
               wavesurfer.playPause();
 
-              if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+              if (playBtn.src.includes('main-icons/play-icon1.png')) {
                 playBtn.src = "./main-icons/pause-icon.png"
                 console.log('yes')
               } else {
@@ -1061,7 +1099,7 @@ showAllSection2.addEventListener("click", function () {
                   wavesurfer.load(resultUrl[0].audio);
                   wavesurfer.playPause();
 
-                  if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+                  if (playBtn.src.includes('main-icons/play-icon1.png')) {
                     playBtn.src = "./main-icons/pause-icon.png"
                     console.log('yes')
                   } else {
@@ -1219,7 +1257,7 @@ const myFetch3 = fetch(`https://api.jamendo.com/v3.0/${artists}/?client_id=fd9b5
 
             wavesurfer.playPause();
 
-            if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+            if (playBtn.src.includes('main-icons/play-icon1.png')) {
               playBtn.src = "./main-icons/pause-icon.png"
               console.log('yes')
             } else {
@@ -1280,7 +1318,7 @@ const myFetch3 = fetch(`https://api.jamendo.com/v3.0/${artists}/?client_id=fd9b5
                 wavesurfer.load(resultUrl[0].audio);
                 wavesurfer.playPause();
 
-                if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+                if (playBtn.src.includes('main-icons/play-icon1.png')) {
                   playBtn.src = "./main-icons/pause-icon.png"
                   console.log('yes')
                 } else {
@@ -1400,7 +1438,7 @@ showAllSection3.addEventListener("click", function () {
 
               wavesurfer.playPause();
 
-              if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+              if (playBtn.src.includes('main-icons/play-icon1.png')) {
                 playBtn.src = "./main-icons/pause-icon.png"
                 console.log('yes')
               } else {
@@ -1461,7 +1499,7 @@ showAllSection3.addEventListener("click", function () {
                   wavesurfer.load(resultUrl[0].audio);
                   wavesurfer.playPause();
 
-                  if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+                  if (playBtn.src.includes('main-icons/play-icon1.png')) {
                     playBtn.src = "./main-icons/pause-icon.png"
                     console.log('yes')
                   } else {
@@ -1567,7 +1605,7 @@ showAllSection3.addEventListener("click", function () {
 
               wavesurfer.playPause();
 
-              if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+              if (playBtn.src.includes('main-icons/play-icon1.png')) {
                 playBtn.src = "./main-icons/pause-icon.png"
                 console.log('yes')
               } else {
@@ -1628,7 +1666,7 @@ showAllSection3.addEventListener("click", function () {
                   wavesurfer.load(resultUrl[0].audio);
                   wavesurfer.playPause();
 
-                  if (playBtn.src == "http://127.0.0.1:5502/musicApp/main-icons/play-icon1.png") {
+                  if (playBtn.src.includes('main-icons/play-icon1.png')) {
                     playBtn.src = "./main-icons/pause-icon.png"
                     console.log('yes')
                   } else {
@@ -1824,18 +1862,21 @@ let ContainerOfForm3 = document.getElementById("register-container-part3")
 
 let DateOfuser = {
   email: "",
-  password : "",
-  username : "",
+  password: "",
+  username: "",
+  arr: []
 }
 
 let singBoolen = false
 
 btnOfsingup.addEventListener("click", () => {
+
   singBoolen = !singBoolen
 
   if (singBoolen) {
     ContainOfsingup.style.display = "flex"
     ContainerOfForm1.style.display = "flex"
+    ContainOflogin.style.display = 'none'
   } else {
     ContainOfsingup.style.display = "none"
     ContainerOfForm1.style.display = "none"
@@ -1850,7 +1891,7 @@ buttonOflog[0].addEventListener("click", () => {
   logBoolen = !logBoolen
   if (logBoolen) {
     ContainOflogin.style.display = "flex"
-
+    ContainOfsingup.style.display = 'none'
   } else {
     ContainOflogin.style.display = "none"
   }
@@ -1870,9 +1911,9 @@ Button[0].addEventListener("click", () => {
     LabelOfEmail.innerHTML = "Email address"
     LabelOfEmail.style.color = "#ffffffbf"
     Button[0].style.backgroundColor = "#0be994"
-    
+
     DateOfuser.email = EmailOfregister.value
-    
+
     EmailOfregister.value = ""
     ContainerOfForm1.style.display = "none"
     ContainerOfForm2.style.display = "flex"
@@ -1922,7 +1963,7 @@ PassOfregister.addEventListener("input", () => {
 
   })
 
-  
+
 
 })
 
@@ -1974,11 +2015,12 @@ Button[2].addEventListener("click", () => {
     NameOfregister.value = ""
     SurnameOfregister.value = ""
     DateOfregister.value = ""
-    ContainOfsingup.style.display= 'none'
+    ContainOfsingup.style.display = 'none'
 
   }
   console.log(sum)
   console.log(DateOfuser)
+  localStorage.setItem(`${DateOfuser.email}${DateOfuser.password}`, JSON.stringify(DateOfuser))
 
 })
 
@@ -1989,23 +2031,73 @@ let passwordLogIn = document.getElementById('password-login')
 let signLogInDiv = document.getElementsByClassName('sign-log-div')
 
 
-logInBtn.addEventListener('click',()=>{
- 
+logInBtn.addEventListener('click', () => {
+//  let email1 = JSON.parse(localStorage.getItem(`${emailLogIn.value}${passwordLogIn.value}`)).email
+//   let pass1 = JSON.parse(localStorage.getItem(`${emailLogIn.value}${passwordLogIn.value}`)).password
 
-  
-  let firstChar = DateOfuser.username.split('')[0].toUpperCase()
-  if(emailLogIn.value === DateOfuser.email && passwordLogIn.value === DateOfuser.password){
-    logInBtn.style.display='none'
+//     console.log(email1)
     
-    ContainOfsingup.style.display= 'none'
+//     if(emailLogIn.value != email1 ){
+//       emailLogIn.style.borderColor = 'red'
+//     }else{
+//       emailLogIn.style.borderColor ='#fffff'
+//     }
+    
+//     if(passwordLogIn.value != pass1){
+//       passwordLogIn.style.borderColor = 'red'
+//     }else{
+//       passwordLogIn.style.borderColor = '#fffff'
+//     }
+
+  // let firstChar = DateOfuser.username.split('')[0].toUpperCase()
+  if (localStorage.getItem(`${emailLogIn.value}${passwordLogIn.value}`)) {
+   emailLogIn.style.borderColor = '#ffffff'
+    passwordLogIn.style.borderColor = '#ffffff'
+
+
+    let firstChar = JSON.parse(localStorage.getItem(`${emailLogIn.value}${passwordLogIn.value}`)).username.split('')[0].toUpperCase()
+
     btnOfsingup.innerHTML = `${firstChar}`
-    btnOfsingup.style.border= '1px solid #ffffff'
+    logInBtn.style.display = 'none'
+    ContainOfsingup.style.display = 'none'
+    btnOfsingup.style.border = '1px solid #ffffff'
     btnOfsingup.style.borderRadius = '50%'
     btnOfsingup.style.padding = '5px 12px'
     btnOfsingup.style.marginRight = '10px'
     buttonOflog[0].innerHTML = 'Log Out'
     ContainOflogin.style.display = 'none'
+    accKey.innerHTML = `${emailLogIn.value}${passwordLogIn.value}`
+
+
+    let finObj = JSON.parse(localStorage.getItem(accKey.innerHTML))
+    LikedSongdiv.innerHTML = ""
+
+    for(let b=0; b< finObj.arr.length;b++){
+
+                    const myFetch = fetch(`https://api.jamendo.com/v3.0/${tracks}/?client_id=fd9b5391&limit=100&order=popularity_total_desc`).then((response) => {
+                      return response.json();
+                    }).then((data4) => {
+                      for (let c = 0; c < 100; c++) {
+                        if(finObj.arr[b] == data4.results[c].id){
+                          LikedSongdiv.innerHTML += `<div class="liked-songs-div">
+                          <p class="number-of-music">${b+1}</p>
+                          <div class="container-of-names">
+                            <p class="name-of-music">${data4.results[c].name}</p>
+                            <p class="name-of-artist">${data4.results[c].artist_name}</p>
+                          </div>
+                        </div>`
+
+                        }
+                      }
+                    })
+                    }
+   
+  }else{
+    emailLogIn.style.borderColor = 'red'
+    passwordLogIn.style.borderColor = 'red'
+
   }
+
 })
 
 
